@@ -1,0 +1,3 @@
+User-agent: *
+Disallow: /
+# Demo site: remove Disallow after final content and legal checks.

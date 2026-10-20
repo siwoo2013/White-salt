@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: hayan-salt-website
+    runtime: static
+    buildCommand: mkdir -p dist && cp index.html dist/index.html && cp -R assets dist/assets && cp robots.txt dist/robots.txt
+    staticPublishPath: ./dist
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
