@@ -81,3 +81,24 @@
 .history-event-dot{width:8px;height:8px;border-radius:100%;background:#14a1be;margin-top:7px;box-shadow:0 0 0 3px #def4fa}
 .history-event-title{font-size:15px;line-height:1.7;font-weight:600;color:#23455d;word-break:keep-all}
 @media(max-width:720px){.history-heading{display:block}.history-heading>p{margin-top:10px}.history-period{grid-template-columns:1fr;gap:16px;padding:24px 0}.history-period-label{max-width:185px}.history-event{grid-template-columns:55px 10px minmax(0,1fr);gap:12px;padding:12px}.history-event-title{font-size:14px}}
+
+
+/* White_salt V9 — refined organization chart */
+.org-chart-v2{display:none !important}
+.org-chart-v3{margin-top:34px;position:relative;padding-top:4px}
+.org-head-row{display:flex;justify-content:center;margin-bottom:20px}
+.org-chart-v3 .org-node{background:#fff;border:2px solid #3f7cac;border-radius:18px;padding:18px 20px;text-align:center;font-weight:800;color:#153954;box-shadow:0 10px 24px #0f395714}
+.org-chart-v3 .org-node-head{min-width:360px;max-width:520px;font-size:18px}
+.org-support-row{position:relative;display:flex;justify-content:flex-end;max-width:960px;margin:0 auto 24px;padding-right:28px}
+.org-support-line{position:absolute;left:50%;top:50%;width:29%;height:2px;background:#9dc1da;transform:translateY(-50%)}
+.org-chart-v3 .org-node-side{width:min(320px,100%)}
+.org-main-grid{position:relative;display:grid;grid-template-columns:repeat(3,minmax(220px,1fr));gap:18px;max-width:960px;margin:0 auto;padding-top:28px}
+.org-main-grid:before{content:'';position:absolute;left:16.666%;right:16.666%;top:0;height:2px;background:#9dc1da}
+.org-main-grid:after{content:'';position:absolute;left:50%;top:-34px;width:2px;height:34px;background:#9dc1da;transform:translateX(-50%)}
+.org-unit{display:flex;flex-direction:column;align-items:center;position:relative}
+.org-unit-head{width:100%;position:relative}
+.org-unit-head:before{content:'';position:absolute;left:50%;top:-28px;width:2px;height:28px;background:#9dc1da;transform:translateX(-50%)}
+.org-substack{display:flex;flex-direction:column;align-items:center;gap:14px;position:relative;padding-top:38px;width:100%}
+.org-substack:before{content:'';position:absolute;left:50%;top:0;width:2px;height:38px;background:#9dc1da;transform:translateX(-50%)}
+.org-node-small{width:min(180px,100%);padding:16px 12px}
+@media(max-width:980px){.org-support-row{justify-content:center;padding-right:0}.org-support-line{display:none}.org-main-grid{grid-template-columns:1fr;max-width:360px;padding-top:12px}.org-main-grid:before,.org-main-grid:after,.org-unit-head:before,.org-substack:before{display:none}.org-chart-v3 .org-node-head{min-width:0;width:100%}.org-chart-v3 .org-node-side{width:100%}}
