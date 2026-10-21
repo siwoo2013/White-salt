@@ -1,0 +1,60 @@
+{
+  "home": [],
+  "about": [
+    {
+      "id": "a1",
+      "enabled": true,
+      "layout": "image-right",
+      "label": "SHINAN STORY",
+      "title": "청정 신안의 자연",
+      "description": "신안의 바다와 자연을 담아 깨끗한 소금을 만듭니다.",
+      "images": [
+        "images/story_1200x800.jpg"
+      ]
+    }
+  ],
+  "smartfarm": [
+    {
+      "id": "s1",
+      "enabled": true,
+      "layout": "image-left",
+      "label": "SMART FARM",
+      "title": "시설형 스마트 생산",
+      "description": "시설형 비닐하우스에서 스테인리스 베드를 이용해 소금 결정화를 관리합니다.",
+      "images": [
+        "images/slide_02_1920x720.jpg"
+      ]
+    }
+  ],
+  "process": [
+    {
+      "id": "p1",
+      "enabled": true,
+      "layout": "image-wide",
+      "label": "PRODUCTION",
+      "title": "하얀솔트의 생산공정",
+      "description": "노지 염수 생산부터 필터링과 결정화까지.",
+      "images": [
+        "images/slide_02_1920x720.jpg"
+      ]
+    }
+  ],
+  "products": [
+    {
+      "id": "pd1",
+      "enabled": true,
+      "layout": "gallery",
+      "label": "PRODUCTS",
+      "title": "다양한 하얀솔트 제품",
+      "description": "가정용과 스틱 제품을 소개합니다.",
+      "images": [
+        "images/product_250g_800x800.jpg",
+        "images/product_1kg_800x800.jpg",
+        "images/product_stick_800x800.jpg"
+      ]
+    }
+  ],
+  "quality": [],
+  "b2b": [],
+  "contact": []
+}
