@@ -54,3 +54,16 @@ git push -u origin main
 - 제품 구성: `products` 배열
 - 메뉴와 페이지 내용: `nav`, `pages`, `simple()`
 - 디자인: `assets/style.css`
+
+
+## V2 이미지 파일 교체
+`IMAGE_GUIDE.md` 참고. 로고/메인 슬라이드/회사소개/제품 이미지는 `images/` 폴더에서 로드합니다.
+
+
+## V3 변경 사항 (Render)
+
+- `render.yaml`의 서비스 이름을 `white-salt`로 변경했습니다.
+- `buildCommand`가 `images/` 폴더까지 `dist/images/`에 복사합니다.
+- 메인 슬라이드 3장, 제품 이미지 4장, 회사소개 이미지, 투명 배경 로고를 `images/`에서 로드합니다.
+- GitHub 저장소 루트에 압축을 푼 **내용 전체**를 업로드하세요. 폴더 `White_salt_V3` 자체를 업로드하면 안 됩니다.
+- 이미 존재하는 Render 서비스는 이름 변경만으로 기존 `onrender.com` 주소가 바뀌지 않습니다. 새 서비스로 생성할 경우에도 `white-salt` 주소 사용 가능 여부에 따라 달라집니다. 기존 서비스 삭제 전 새 배포를 확인하세요.

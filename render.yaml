@@ -1,8 +1,8 @@
 services:
   - type: web
-    name: hayan-salt-website
+    name: white-salt
     runtime: static
-    buildCommand: mkdir -p dist && cp index.html dist/index.html && cp -R assets dist/assets && cp robots.txt dist/robots.txt
+    buildCommand: mkdir -p dist && cp index.html dist/index.html && cp -R assets dist/assets && cp -R images dist/images && cp robots.txt dist/robots.txt
     staticPublishPath: ./dist
     headers:
       - path: /*
