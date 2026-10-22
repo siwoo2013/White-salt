@@ -99,6 +99,34 @@ document.querySelectorAll('[data-slide]').forEach(btn=>btn.addEventListener('cli
 restartSlideTimer();
 const toggle=document.querySelector('.nav-toggle');toggle.addEventListener('click',()=>{let open=document.querySelector('.nav').classList.toggle('open');toggle.setAttribute('aria-expanded',String(open));toggle.textContent=open?'✕':'☰';});
 const topBtn=document.querySelector('.back-to-top');window.addEventListener('scroll',()=>topBtn?.classList.toggle('visible',window.scrollY>280),{passive:true});topBtn?.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+// V14: mobile-only animated swipe guidance and 3-second page-change toast.
+(function setupSwipeFeedback(){
+  const mobile=window.matchMedia('(max-width: 820px) and (pointer: coarse)');
+  const title=siteLang==='en'?'Swipe left or right to explore':'좌우로 스와이프해 페이지를 이동해보세요';
+  const guide=document.createElement('div');
+  guide.className='ws-swipe-hint';
+  guide.setAttribute('aria-label', title);
+  guide.innerHTML='<span class="ws-swipe-icon" aria-hidden="true"><span class="ws-arrow ws-left">➜</span><span class="ws-swipe-dots">•••</span><span class="ws-arrow ws-right">➜</span></span><span class="ws-swipe-hint-label"></span>';
+  guide.querySelector('.ws-swipe-hint-label').textContent=title;
+  document.body.appendChild(guide);
+  let arrived=null;
+  try { arrived=JSON.parse(sessionStorage.getItem('wsSwipeArrival')||'null'); sessionStorage.removeItem('wsSwipeArrival'); } catch (_) {}
+  if (!mobile.matches || !arrived || arrived.page!==cur || Date.now()-arrived.time>15000) return;
+  const names=siteLang==='en'?['Home','About Us','Smart Farm','Production Process','Products','Quality Control','B2B & Export','Contact']:nav.map(([,label])=>label);
+  const index=nav.findIndex(([id])=>id===cur);
+  const toast=document.createElement('div');
+  toast.className='ws-page-toast';
+  toast.setAttribute('role','status');
+  toast.setAttribute('aria-live','polite');
+  const counter=document.createElement('small');counter.textContent=(index+1)+' / '+nav.length;
+  const heading=document.createElement('strong');heading.textContent=names[index];
+  const dots=document.createElement('div');dots.className='ws-page-dots';dots.setAttribute('aria-hidden','true');
+  nav.forEach((_,i)=>{const dot=document.createElement('i');if(i===index)dot.className='active';dots.appendChild(dot)});
+  toast.append(counter,heading,dots);
+  document.body.appendChild(toast);
+  requestAnimationFrame(()=>toast.classList.add('shown'));
+  setTimeout(()=>{toast.classList.remove('shown');setTimeout(()=>toast.remove(),280)},3000);
+})();
 // White_salt V13: mobile-only, deliberate horizontal page swipes.
 // Native vertical scrolling remains untouched; do not start from interactive/media elements.
 (function setupMobilePageSwipe(){
@@ -130,6 +158,7 @@ const topBtn=document.querySelector('.back-to-top');window.addEventListener('scr
     const i=order.indexOf(cur), next=order[i+(dx<0?1:-1)];
     if (!next) return;
     lockUntil=Date.now()+1100;
+    try { sessionStorage.setItem('wsSwipeArrival', JSON.stringify({page:next, time:Date.now()})); } catch (_) {}
     location.assign(link(next)); // preserves ?lang=en for the English version
   }, {passive:true});
 })();
