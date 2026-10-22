@@ -99,5 +99,39 @@ document.querySelectorAll('[data-slide]').forEach(btn=>btn.addEventListener('cli
 restartSlideTimer();
 const toggle=document.querySelector('.nav-toggle');toggle.addEventListener('click',()=>{let open=document.querySelector('.nav').classList.toggle('open');toggle.setAttribute('aria-expanded',String(open));toggle.textContent=open?'✕':'☰';});
 const topBtn=document.querySelector('.back-to-top');window.addEventListener('scroll',()=>topBtn?.classList.toggle('visible',window.scrollY>280),{passive:true});topBtn?.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+// White_salt V13: mobile-only, deliberate horizontal page swipes.
+// Native vertical scrolling remains untouched; do not start from interactive/media elements.
+(function setupMobilePageSwipe(){
+  const mobile = window.matchMedia('(max-width: 820px) and (pointer: coarse)');
+  const excluded = 'a,button,input,textarea,select,label,iframe,video,audio,canvas,[contenteditable],.slide-controls,.video-wrap,.config-gallery,.products-grid,.nav,.nav-toggle,.lang-switch,.back-to-top';
+  const order = nav.map(([id])=>id);
+  let start = null;
+  let lockUntil = 0;
+  document.addEventListener('touchstart', e => {
+    start = null;
+    if (!mobile.matches || e.touches.length !== 1 || Date.now() < lockUntil) return;
+    const target = e.target;
+    if (!(target instanceof Element) || target.closest(excluded) || !target.closest('main')) return;
+    if (target.closest('[data-no-page-swipe]')) return;
+    const t = e.touches[0];
+    start = {x:t.clientX,y:t.clientY,time:Date.now(),scrollY:window.scrollY,blocked:false};
+  }, {passive:true});
+  document.addEventListener('touchmove', e=>{
+    if (!start || e.touches.length!==1) {start=null;return;}
+    const t=e.touches[0], dx=t.clientX-start.x, dy=t.clientY-start.y;
+    if (Math.abs(dy)>28 && Math.abs(dy)>Math.abs(dx)*0.7) start.blocked=true;
+  }, {passive:true});
+  document.addEventListener('touchcancel', ()=>{start=null;}, {passive:true});
+  document.addEventListener('touchend', e=>{
+    if (!start || !mobile.matches || !e.changedTouches.length) {start=null;return;}
+    const gesture=start; start=null;
+    const t=e.changedTouches[0], dx=t.clientX-gesture.x, dy=t.clientY-gesture.y;
+    if (gesture.blocked || Math.abs(dx)<110 || Math.abs(dx)<Math.abs(dy)*1.8 || Date.now()-gesture.time>1300 || Math.abs(window.scrollY-gesture.scrollY)>40) return;
+    const i=order.indexOf(cur), next=order[i+(dx<0?1:-1)];
+    if (!next) return;
+    lockUntil=Date.now()+1100;
+    location.assign(link(next)); // preserves ?lang=en for the English version
+  }, {passive:true});
+})();
 const form=document.querySelector('#contact-form');if(form){form.addEventListener('submit',async e=>{e.preventDefault();if(!form.reportValidity())return;let d=new FormData(form);let body=`문의 구분: ${d.get('type')}\n이름/회사명: ${d.get('person')}\n이메일: ${d.get('reply')}\n\n${d.get('message')}`;let msg=`[하얀솔트 문의]\n${body}`;try{await navigator.clipboard.writeText(msg);document.querySelector('#form-result').textContent=siteLang==='en'?`Inquiry copied. Please email it to ${settings.email}.`:`문의 내용이 복사되었습니다. ${settings.email}로 직접 보내주세요.`;}catch{document.querySelector('#form-result').textContent=siteLang==='en'?'Copy unavailable. Please copy your message manually.':'복사 기능을 사용할 수 없습니다. 입력한 내용을 직접 복사해주세요.';}})}
 })();
