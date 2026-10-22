@@ -99,7 +99,7 @@ document.querySelectorAll('[data-slide]').forEach(btn=>btn.addEventListener('cli
 restartSlideTimer();
 const toggle=document.querySelector('.nav-toggle');toggle.addEventListener('click',()=>{let open=document.querySelector('.nav').classList.toggle('open');toggle.setAttribute('aria-expanded',String(open));toggle.textContent=open?'✕':'☰';});
 const topBtn=document.querySelector('.back-to-top');window.addEventListener('scroll',()=>topBtn?.classList.toggle('visible',window.scrollY>280),{passive:true});topBtn?.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
-// V15: mobile-only animated swipe guidance and 1.5-second page-change toast.
+// V16: mobile swipe guidance pauses for scrolling, 1.5s page-change toast.
 (function setupSwipeFeedback(){
   const mobile=window.matchMedia('(max-width: 820px) and (pointer: coarse)');
   const title=siteLang==='en'?'Swipe left or right to explore':'좌우로 스와이프해 페이지를 이동해보세요';
@@ -109,50 +109,65 @@ const topBtn=document.querySelector('.back-to-top');window.addEventListener('scr
   guide.innerHTML='<span class="ws-swipe-icon" aria-hidden="true"><span class="ws-arrow ws-left">➜</span><span class="ws-swipe-dots">•••</span><span class="ws-arrow ws-right">➜</span></span><span class="ws-swipe-hint-label"></span>';
   guide.querySelector('.ws-swipe-hint-label').textContent=title;
   document.body.appendChild(guide);
-  // Hide the guide immediately during vertical touch movement or scroll;
-  // show it once scrolling has been idle for a short period.
-  let revealTimer = null;
-  let touchStartY = null;
-  let touchStartX = null;
-  let verticalTouch = false;
-  const hideGuide = () => {
-    if (!mobile.matches) return;
+  // V16: keep hint hidden throughout touch scrolling AND momentum scrolling.
+  // Use both touch movement and scroll events to cover mobile browser behavior.
+  let revealTimer=null;
+  let startX=null, startY=null;
+  let isTouchScrolling=false;
+  let touching=false;
+  let lastScrollY=window.scrollY;
+  const hideGuide=()=>{
+    if(!mobile.matches)return;
     clearTimeout(revealTimer);
     guide.classList.add('is-scrolling');
   };
-  const scheduleReveal = () => {
-    if (!mobile.matches) return;
+  const scheduleReveal=()=>{
+    if(!mobile.matches)return;
     clearTimeout(revealTimer);
-    revealTimer = setTimeout(() => {
-      if (!verticalTouch) guide.classList.remove('is-scrolling');
-    }, 350);
+    revealTimer=setTimeout(()=>{
+      if(!touching){
+        isTouchScrolling=false;
+        guide.classList.remove('is-scrolling');
+      }
+    },700);
   };
-  document.addEventListener('touchstart', e => {
-    if (!mobile.matches || e.touches.length !== 1) return;
-    touchStartX = e.touches[0].clientX;
-    touchStartY = e.touches[0].clientY;
-    verticalTouch = false;
-  }, {passive:true});
-  document.addEventListener('touchmove', e => {
-    if (!mobile.matches || touchStartY === null || e.touches.length !== 1) return;
-    const dx = e.touches[0].clientX - touchStartX;
-    const dy = e.touches[0].clientY - touchStartY;
-    if (Math.abs(dy) > 12 && Math.abs(dy) > Math.abs(dx) * 1.15) {
-      verticalTouch = true;
+  document.addEventListener('touchstart',e=>{
+    if(!mobile.matches||e.touches.length!==1)return;
+    touching=true;
+    isTouchScrolling=false;
+    startX=e.touches[0].clientX;
+    startY=e.touches[0].clientY;
+    clearTimeout(revealTimer);
+  },{passive:true});
+  document.addEventListener('touchmove',e=>{
+    if(!mobile.matches||!touching||e.touches.length!==1)return;
+    const dx=e.touches[0].clientX-startX;
+    const dy=e.touches[0].clientY-startY;
+    if(Math.abs(dy)>8&&Math.abs(dy)>Math.abs(dx)*0.9){
+      isTouchScrolling=true;
       hideGuide();
     }
-  }, {passive:true});
-  for (const eventName of ['touchend', 'touchcancel']) {
-    document.addEventListener(eventName, () => {
-      touchStartX = touchStartY = null;
-      verticalTouch = false;
+  },{passive:true});
+  const finishTouch=()=>{
+    touching=false;
+    startX=startY=null;
+    if(isTouchScrolling)scheduleReveal();
+  };
+  document.addEventListener('touchend',finishTouch,{passive:true});
+  document.addEventListener('touchcancel',finishTouch,{passive:true});
+  window.addEventListener('scroll',()=>{
+    if(!mobile.matches)return;
+    const nextY=window.scrollY;
+    if(Math.abs(nextY-lastScrollY)>0){
+      lastScrollY=nextY;
+      isTouchScrolling=true;
+      hideGuide();
       scheduleReveal();
-    }, {passive:true});
+    }
+  },{passive:true});
+  if('onscrollend' in window){
+    window.addEventListener('scrollend',()=>{if(isTouchScrolling)scheduleReveal();},{passive:true});
   }
-  window.addEventListener('scroll', () => {
-    hideGuide();
-    scheduleReveal();
-  }, {passive:true});
   let arrived=null;
   try { arrived=JSON.parse(sessionStorage.getItem('wsSwipeArrival')||'null'); sessionStorage.removeItem('wsSwipeArrival'); } catch (_) {}
   if (!mobile.matches || !arrived || arrived.page!==cur || Date.now()-arrived.time>15000) return;

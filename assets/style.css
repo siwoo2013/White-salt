@@ -150,3 +150,8 @@
     visibility:hidden;
   }
 }
+
+/* V16 fallback: hide state must override mobile display rules. */
+@media(max-width:820px) and (pointer:coarse){
+ .ws-swipe-hint.is-scrolling{opacity:0!important;visibility:hidden!important;pointer-events:none!important;}
+}
