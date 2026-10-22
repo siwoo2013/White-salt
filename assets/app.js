@@ -99,7 +99,7 @@ document.querySelectorAll('[data-slide]').forEach(btn=>btn.addEventListener('cli
 restartSlideTimer();
 const toggle=document.querySelector('.nav-toggle');toggle.addEventListener('click',()=>{let open=document.querySelector('.nav').classList.toggle('open');toggle.setAttribute('aria-expanded',String(open));toggle.textContent=open?'✕':'☰';});
 const topBtn=document.querySelector('.back-to-top');window.addEventListener('scroll',()=>topBtn?.classList.toggle('visible',window.scrollY>280),{passive:true});topBtn?.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
-// V14: mobile-only animated swipe guidance and 3-second page-change toast.
+// V15: mobile-only animated swipe guidance and 1.5-second page-change toast.
 (function setupSwipeFeedback(){
   const mobile=window.matchMedia('(max-width: 820px) and (pointer: coarse)');
   const title=siteLang==='en'?'Swipe left or right to explore':'좌우로 스와이프해 페이지를 이동해보세요';
@@ -109,6 +109,50 @@ const topBtn=document.querySelector('.back-to-top');window.addEventListener('scr
   guide.innerHTML='<span class="ws-swipe-icon" aria-hidden="true"><span class="ws-arrow ws-left">➜</span><span class="ws-swipe-dots">•••</span><span class="ws-arrow ws-right">➜</span></span><span class="ws-swipe-hint-label"></span>';
   guide.querySelector('.ws-swipe-hint-label').textContent=title;
   document.body.appendChild(guide);
+  // Hide the guide immediately during vertical touch movement or scroll;
+  // show it once scrolling has been idle for a short period.
+  let revealTimer = null;
+  let touchStartY = null;
+  let touchStartX = null;
+  let verticalTouch = false;
+  const hideGuide = () => {
+    if (!mobile.matches) return;
+    clearTimeout(revealTimer);
+    guide.classList.add('is-scrolling');
+  };
+  const scheduleReveal = () => {
+    if (!mobile.matches) return;
+    clearTimeout(revealTimer);
+    revealTimer = setTimeout(() => {
+      if (!verticalTouch) guide.classList.remove('is-scrolling');
+    }, 350);
+  };
+  document.addEventListener('touchstart', e => {
+    if (!mobile.matches || e.touches.length !== 1) return;
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    verticalTouch = false;
+  }, {passive:true});
+  document.addEventListener('touchmove', e => {
+    if (!mobile.matches || touchStartY === null || e.touches.length !== 1) return;
+    const dx = e.touches[0].clientX - touchStartX;
+    const dy = e.touches[0].clientY - touchStartY;
+    if (Math.abs(dy) > 12 && Math.abs(dy) > Math.abs(dx) * 1.15) {
+      verticalTouch = true;
+      hideGuide();
+    }
+  }, {passive:true});
+  for (const eventName of ['touchend', 'touchcancel']) {
+    document.addEventListener(eventName, () => {
+      touchStartX = touchStartY = null;
+      verticalTouch = false;
+      scheduleReveal();
+    }, {passive:true});
+  }
+  window.addEventListener('scroll', () => {
+    hideGuide();
+    scheduleReveal();
+  }, {passive:true});
   let arrived=null;
   try { arrived=JSON.parse(sessionStorage.getItem('wsSwipeArrival')||'null'); sessionStorage.removeItem('wsSwipeArrival'); } catch (_) {}
   if (!mobile.matches || !arrived || arrived.page!==cur || Date.now()-arrived.time>15000) return;
@@ -125,7 +169,7 @@ const topBtn=document.querySelector('.back-to-top');window.addEventListener('scr
   toast.append(counter,heading,dots);
   document.body.appendChild(toast);
   requestAnimationFrame(()=>toast.classList.add('shown'));
-  setTimeout(()=>{toast.classList.remove('shown');setTimeout(()=>toast.remove(),280)},3000);
+  setTimeout(()=>{toast.classList.remove('shown');setTimeout(()=>toast.remove(),280)},1500);
 })();
 // White_salt V13: mobile-only, deliberate horizontal page swipes.
 // Native vertical scrolling remains untouched; do not start from interactive/media elements.

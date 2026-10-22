@@ -137,3 +137,16 @@
 @keyframes ws-left-shift{0%,100%{translate:0 0;opacity:.8}50%{translate:-7px 0;opacity:1}}
 @keyframes ws-right-shift{0%,100%{translate:0 0;opacity:.8}50%{translate:7px 0;opacity:1}}
 @media(prefers-reduced-motion:reduce){.ws-arrow{animation:none!important}.ws-page-toast{transition:none!important}}
+
+/* V15: hide swipe hint during vertical scrolling; reveal when idle */
+@media (max-width:820px) and (pointer:coarse) {
+  .ws-swipe-hint {
+    opacity:1;
+    visibility:visible;
+    transition:opacity .20s ease, visibility .20s ease;
+  }
+  .ws-swipe-hint.is-scrolling {
+    opacity:0;
+    visibility:hidden;
+  }
+}
