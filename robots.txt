@@ -1,4 +1,3 @@
 User-agent: *
 Allow: /
-
 Sitemap: https://white-salt.onrender.com/sitemap.xml
