@@ -1,3 +1,4 @@
 User-agent: *
-Disallow: /
-# Demo site: remove Disallow after final content and legal checks.
+Allow: /
+
+Sitemap: https://white-salt.onrender.com/sitemap.xml
